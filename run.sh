@@ -93,6 +93,6 @@ elif [ -n "${INIT_RESTORE_LATEST}" ]; then
     ls -d -1 /backup/* | tail -1 | xargs /restore.sh
 fi
 
-echo "${CRON_TIME} sh -c /backup.sh >> /postgres_backup.log 2>&1" > /etc/crontabs/contab.conf
+echo "${CRON_TIME} sh -c /backup.sh >> /postgres_backup.log 2>&1" > /etc/crontabs/root
 echo "=> Running cron job"
 exec crond -l 2 -f
