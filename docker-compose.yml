@@ -1,36 +1,49 @@
-minio:
-  image: minio/minio
-  environment:
-    MINIO_ACCESS_KEY: NKZ1L29S4GP01J6IOD6F
-    MINIO_SECRET_KEY: 5w2WzW3Y6wNQbdQEADYD2USWlvx9vh4j+fgYOd4b
+version: '2'
+services:
+  minio:
+    image: minio/minio
+    command: server /data
+    environment:
+      MINIO_ACCESS_KEY: NKZ1L29S4GP01J6IOD6F
+      MINIO_SECRET_KEY: 5w2WzW3Y6wNQbdQEADYD2USWlvx9vh4j+fgYOd4b
+    volumes: 
+      - ./minio-data:/data
+    ports: 
+      - 9000:9000
 
 
-postgres:
-  image: postgres
-  environment:
-    - POSTGRES_PASSWORD=blabla
-    - POSTGRES_USER=deploy
-    - POSTGRES_DB=test
+  postgres:
+    image: postgres:11.3-alpine
+    environment:
+      - POSTGRES_PASSWORD=blabla
+      - POSTGRES_USER=deploy
+      - POSTGRES_DB=test
 
 
-backupdb:
-  environment:
-    POSTGRES_DB: test
-    CRON_TIME: '* * * * *'
-    #INIT_RESTORE_URL: myminio/databases/blabla.sql
-    INIT_BACKUP: 'true'
-    MINIO_ACCESS_KEY: NKZ1L29S4GP01J6IOD6F
-    MINIO_HOST: myminio
-    MINIO_HOST_URL: http://minio:9000
-    MINIO_SECRET_KEY: 5w2WzW3Y6wNQbdQEADYD2USWlvx9vh4j+fgYOd4b
-    MINIO_BUCKET: testdb
-    POSTGRES_USER: deploy
-    POSTGRES_PASSWORD: blabla
-    RESTIC_FORGET: -l 3
-    MAX_BACKUPS: 4
-  build: .
-  links:
-    - postgres:postgres
-    - minio:minio
-  volumes:
-  - backuptest:/backup
+  backupdb:
+    environment:
+      POSTGRES_DB: test
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      CRON_TIME: '* * * * *'
+      #INIT_RESTORE_URL: myminio/databases/blabla.sql
+      INIT_BACKUP: 'true'
+      MINIO_ACCESS_KEY: NKZ1L29S4GP01J6IOD6F
+      MINIO_HOST: myminio
+      MINIO_HOST_URL: http://minio:9000
+      MINIO_SECRET_KEY: 5w2WzW3Y6wNQbdQEADYD2USWlvx9vh4j+fgYOd4b
+      MINIO_BUCKET: testdb
+      POSTGRES_USER: deploy
+      POSTGRES_PASSWORD: blabla
+      RESTIC_FORGET: -l 3
+      MAX_BACKUPS: 2
+    # image: anhgien/docker-postgres-backup
+    build: .
+    depends_on:
+    - postgres
+    - minio
+    links:
+      - postgres:postgres
+      - minio:minio
+    volumes:
+    - ./backuptest:/backup

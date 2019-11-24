@@ -1,3 +1,5 @@
 restic
 restic/*
 export/*
+backuptest
+minio-data

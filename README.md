@@ -12,10 +12,6 @@ This image runs pg_dump to backup data using cronjob to folder `/backup`
         --volume host.folder:/backup
         jmcarbo/docker-postgres-backup
 
-Moreover, if you link `jmcarbo/docker-postgres-backup` to a postgres container (e.g. `tutum/mysql`) with an alias named pg, this image will try to auto load the `host`, `port`, `user`, `pass` if possible.
-
-    docker run -d -p 27017:27017 -p 28017:28017 -e PG_PASS="mypass" --name pg postgres
-    docker run -d --link pg:pg -v host.folder:/backup jmcarbo/docker-postgres-backup
 
 ## Parameters
 
@@ -45,3 +41,8 @@ See the list of backups, you can run:
 To restore database from a certain backup, simply run:
 
     docker exec docker-postgres-backup /restore.sh /backup/2015.08.06.171901
+
+## Using Restic backup
+1. Replace `KEY_ID`, `SECRET_KEY`, `RESTIC_PASSWORD`, `BUCKET_NAME` with your own
+2. Run `./install-restic.sh`
+3. Restore backup file: to see all snapshots `restic snapshots`, `restic restore [SNAPSHOT_ID] -t [DIR_PATH]`
