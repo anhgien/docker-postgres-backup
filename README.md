@@ -5,10 +5,10 @@ This image runs pg_dump to backup data using cronjob to folder `/backup`
 ## Usage:
 
     docker run -d \
-        --env PG_HOST=mysql.host \
-        --env PG_PORT=27017 \
-        --env PG_USER=admin \
-        --env PG_PASSWORD=password \
+        --env POSTGRES_HOST=mysql.host \
+        --env POSTGRES_PORT=27017 \
+        --env POSTGRES_USER=admin \
+        --env POSTGRES_PASSWORD=password \
         --volume host.folder:/backup
         jmcarbo/docker-postgres-backup
 
@@ -31,6 +31,7 @@ This image runs pg_dump to backup data using cronjob to folder `/backup`
     MINIO_HOST_URL ex: https://myminio.my.io
     MINIO_ACCESS_KEY minio access key
     MINIO_SECRET_KEY minio secret key
+    RESTIC_PASSWORD restic backup tool password
 
 ## Restore from a backup
 

@@ -57,11 +57,11 @@ EOF
 	        mc mb "${MINIO_HOST}/${MINIO_BUCKET}" 
 		echo "Bucket ${MINIO_BUCKET} created" 
 		echo "$RESTIC_PASSWORD"	| mc pipe "${MINIO_HOST}/${MINIO_BUCKET}/restic_password.txt"
-		mc mb "${MINIO_HOST}/${MINIO_BUCKET}restic"
+		# mc mb "${MINIO_HOST}/${MINIO_BUCKET}restic"
 		export AWS_ACCESS_KEY_ID=${MINIO_ACCESS_KEY}
 		export AWS_SECRET_ACCESS_KEY=${MINIO_SECRET_KEY}
 		export RESTIC_PASSWORD
-		restic -r "s3:${MINIO_HOST_URL}/${MINIO_BUCKET}restic" init
+		restic -r "s3:${MINIO_HOST_URL}/${MINIO_BUCKET}/restic" init
 	else 
 		echo "Bucket ${MINIO_BUCKET} already exists" 
 		RESTIC_PASSWORD=$(mc cat "${MINIO_HOST}/${MINIO_BUCKET}/restic_password.txt")
@@ -75,7 +75,7 @@ cat <<EOF >>/root/.bashrc
 export AWS_ACCESS_KEY_ID=${MINIO_ACCESS_KEY}
 export AWS_SECRET_ACCESS_KEY=${MINIO_SECRET_KEY}
 export RESTIC_PASSWORD=$(mc cat "${MINIO_HOST}/${MINIO_BUCKET}/restic_password.txt")
-export RESTIC_REPOSITORY=s3:${MINIO_HOST_URL}/${MINIO_BUCKET}restic
+export RESTIC_REPOSITORY=s3:${MINIO_HOST_URL}/${MINIO_BUCKET}/restic
 EOF
 
 fi
@@ -96,7 +96,7 @@ if [ -n "\${MINIO_HOST}" ]; then
 	export AWS_ACCESS_KEY_ID=${MINIO_ACCESS_KEY}
 	export AWS_SECRET_ACCESS_KEY=${MINIO_SECRET_KEY}
 	export RESTIC_PASSWORD=${RESTIC_PASSWORD}
-	export RESTIC_REPOSITORY=s3:${MINIO_HOST_URL}/${MINIO_BUCKET}restic
+	export RESTIC_REPOSITORY=s3:${MINIO_HOST_URL}/${MINIO_BUCKET}/restic
 fi
 
 echo "=> Backup started: \${BACKUP_NAME}"
@@ -133,7 +133,7 @@ if [ -n "\${MINIO_HOST}" ]; then
 	export AWS_ACCESS_KEY_ID=${MINIO_ACCESS_KEY}
 	export AWS_SECRET_ACCESS_KEY=${MINIO_SECRET_KEY}
 	export RESTIC_PASSWORD=${RESTIC_PASSWORD}
-	export RESTIC_REPOSITORY=s3:${MINIO_HOST_URL}/${MINIO_BUCKET}restic
+	export RESTIC_REPOSITORY=s3:${MINIO_HOST_URL}/${MINIO_BUCKET}/restic
 fi
 echo "=> Restore database from \$1"
 export RESTORE_OPTS="\${2:---single-transaction --no-owner --clean}"
@@ -180,13 +180,13 @@ cat <<EOF >"$HOME/.mc/config.json"
 	}
 }
 EOF
-	mc cp "${INIT_RESTORE_URL}" /backup/restore_target.sql 	
+	mc cp "${INIT_RESTORE_URL}" /backup/restore_target.dump 	
     	until nc -z $POSTGRES_HOST $POSTGRES_PORT
     	do
         	echo "waiting database container..."
         	sleep 1
     	done
-	/restore.sh /backup/restore_target.sql
+	/restore.sh /backup/restore_target.dump
 fi
 
 echo "${CRON_TIME} /backup.sh >> /postgres_backup.log 2>&1" > /etc/crontabs/root
